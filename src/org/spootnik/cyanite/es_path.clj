@@ -74,23 +74,21 @@
   "write a path into elasticsearch if it doesn't exist"
   [write-key path-exists? tenant path]
   (let [paths (es-all-paths path tenant)]
-    (dorun (map #(if (not (path-exists? (:path %)))
-                   (write-key (:path %) %)) paths))))
+    (if (not (path-exists? path))
+      (dorun (map #(write-key (:path %) %) paths)))))
 
 (defn path-exists-cache?
-  [path-exists? store path]
+  [store path]
   (if (contains? @store path)
     true
-    (if (path-exists? path)
-      (do (swap! store assoc path true) true)
-      false)))
+    (do (swap! store assoc path true) true)))
 
 (defn es-rest
   [{:keys [index url]
     :or {index "cyanite_paths" url "http://localhost:9200"}}]
   (let [store (atom {})
         conn (esr/connect url)
-        existsfn (partial path-exists-cache? (partial esrd/present? conn index ES_DEF_TYPE) store)
+        existsfn (partial path-exists-cache? store)
         updatefn (partial esrd/put conn index ES_DEF_TYPE)
         scrollfn (partial esrd/scroll-seq conn)
         queryfn (partial esrd/search conn index ES_DEF_TYPE)]
@@ -111,7 +109,7 @@
   (let [store (atom {})
         conn (esn/connect [[host port]]
                          {"cluster.name" cluster_name})
-        existsfn (partial path-exists-cache? (partial esnd/present? conn index ES_DEF_TYPE) store)
+        existsfn (partial path-exists-cache? store)
         updatefn (partial esnd/put conn index ES_DEF_TYPE)
         scrollfn (partial esnd/scroll-seq conn)
         queryfn (partial esnd/search conn index ES_DEF_TYPE)]
