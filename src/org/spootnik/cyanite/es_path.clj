@@ -81,7 +81,7 @@
   [store path]
   (if (contains? @store path)
     true
-    (do (swap! store assoc path true) true)))
+    (do (swap! store assoc path true) false)))
 
 (defn es-rest
   [{:keys [index url]
