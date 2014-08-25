@@ -68,7 +68,6 @@
         p (str/replace (str/replace path "." "\\.") "*" ".*")
         f (vector
            {:range {:depth {:from depth :to depth}}}
-           {:term {:tenant tenant}}
            {:regexp {:path p :_cache true}})]
     (if leafs-only (conj f {:term {:leaf true}}) f)))
 
