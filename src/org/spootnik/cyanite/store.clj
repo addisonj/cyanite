@@ -151,7 +151,7 @@
       Metricstore
       (channel-for [this]
         (let [ch (chan 10000)
-              ch-p (partition-or-time 500 ch 500 5)]
+              ch-p (partition-or-time 2000 ch 500 5)]
           (go-forever
            (let [payload (<! ch-p)]
              (try
